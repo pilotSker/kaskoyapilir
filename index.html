@@ -1937,6 +1937,11 @@ document.addEventListener("click",function(e){var el=e.target.closest("[data-act
  if(["wk","a2","ws"].some(function(i){return!$(i).classList.contains("hide")}))return;
  clearInterval(iv);if("Notification" in window&&Notification.permission!=="default"){lsSet("yks-push-v1","1");return}showPushIntro()},1500)})();
 
+/* ===== v22: sadece kullanıcının mesajları ===== */
+NMSG=["Soru sormanın zamanını bilmelisin yoksa sıraya sıçrayabilir!", "Büllükyamin bugün derste seni hoplatacağını söylüyor…", "Faraşı kırmak bu kadar kolay olmamalı…", "Bize ayak yapmayın yalarız!", "Coşkunbete halen kayıt olmadınızmı? (coşkunailesideburada)", "Burgerlerin tadı bugün lezizdi, sosun tarifini öğrenebilir miyim?", "Muhteşem anneden 5000 TL deneme bonusu coşkunbete hala kayıt olmadınmı.", "\"TAYT10\" koduyla sahibe UYSAL’dan %10 indirimi kaçırma.", "⚠️Dikkat⚠️ Sipan arabası çıkabilir.", "Önümüze halı sermeyin, yolunda sıçarız."];
+function remindHtml(){var hr=new Date().getHours();if(!S.cfg.remOn||(hr<S.cfg.rem&&hr>=6))return"";
+ return'<div class="card" data-n="1" style="margin-bottom:12px"><b>'+esc(NMSG[(now6().getDate()+hash(String(ME)))%NMSG.length])+'</b></div>'}
+
 buildForm();renderAll();
 boot();
 </script>
