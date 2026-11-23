@@ -1,5 +1,5 @@
 // Hızlı açılış: önce ağ (2 sn), yavaşsa/çevrimdışıysa önbellek
-const C = 'kasko-v1';
+const C = 'kasko-v2';
 self.addEventListener('install', (e) => {
   self.skipWaiting();
   e.waitUntil(caches.open(C).then((c) => c.addAll(['./', './index.html', './icon-180.png', './logo.jpg'])).catch(() => {}));
