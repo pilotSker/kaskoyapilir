@@ -2,6 +2,5 @@
   "functions": {
     "api/gemini.js": { "maxDuration": 60 },
     "api/push.js": { "maxDuration": 60 }
-  },
-  "crons": [{ "path": "/api/push", "schedule": "0 20 * * *" }]
+  }
 }

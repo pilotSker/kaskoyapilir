@@ -1,5 +1,5 @@
-// Hızlı açılış: önce ağ (2 sn), yavaşsa/çevrimdışıysa önbellek
-const C = 'kasko-v2';
+// Hızlı açılış: önce ağ (2 sn), yavaşsa/çevrimdışıysa önbellek. Bildirimler de burada gösterilir.
+const C = 'kasko-v3';
 self.addEventListener('install', (e) => {
   self.skipWaiting();
   e.waitUntil(caches.open(C).then((c) => c.addAll(['./', './index.html', './icon-180.png', './logo.jpg'])).catch(() => {}));
@@ -23,11 +23,13 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
-
 self.addEventListener('push', (e) => {
-  let d = { title: 'KASKO YAPILIR', body: '' };
+  let d = { title: 'KASKO YKS', body: '' };
   try { d = e.data.json(); } catch (x) {}
-  e.waitUntil(self.registration.showNotification(d.title, { body: d.body, icon: 'icon-180.png', badge: 'icon-180.png', data: { url: d.url || './' } }));
+  e.waitUntil(Promise.all([
+    self.registration.showNotification(d.title, { body: d.body, icon: 'icon-180.png', badge: 'icon-180.png', data: { url: d.url || './' } }),
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((l) => l.forEach((c) => c.postMessage({ type: 'push', title: d.title, body: d.body }))),
+  ]));
 });
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
