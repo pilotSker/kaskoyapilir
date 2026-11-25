@@ -22,16 +22,17 @@ module.exports = async (req, res) => {
   }
   webpush.setVapidDetails('mailto:admin@kasko.app', process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
   const test = q.test === '1';
-  const t = await apps({ action: 'push_targets', secret: process.env.PUSH_SECRET, all: true, n: MSG.length, peek: test });
+  const poke = q.poke ? String(q.poke) : '';
+  const t = await apps({ action: 'push_targets', secret: process.env.PUSH_SECRET, all: true, n: MSG.length, peek: test || !!poke, only: poke });
   if (!t.ok) return res.status(502).json({ error: t.error || 'Apps Script hatasi (yeni kodu dagittin mi?)' });
   let sent = 0;
   const dead = [];
   const hatalar = [];
   for (const x of t.targets) {
-    const msg = MSG[x.pick] || MSG[0];
+    const msg = poke ? String(q.from || 'Biri') + ' seni dürttü. Kalk, çalış!' : (MSG[x.pick] || MSG[0]);
     for (const s of x.subs) {
       try {
-        await webpush.sendNotification(s, JSON.stringify({ title: 'KASKO YAPILIR YKS', body: msg, url: './' }));
+        await webpush.sendNotification(s, JSON.stringify({ title: 'KASKO YKS', body: msg, url: './' }));
         sent++;
       } catch (e) {
         if (e.statusCode === 404 || e.statusCode === 410) dead.push(s.endpoint);
