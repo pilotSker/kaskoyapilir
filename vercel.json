@@ -1,6 +1,7 @@
 {
   "functions": {
     "api/gemini.js": { "maxDuration": 60 },
-    "api/push.js": { "maxDuration": 60 }
+    "api/push.js": { "maxDuration": 60 },
+    "api/poke.js": { "maxDuration": 30 }
   }
 }
