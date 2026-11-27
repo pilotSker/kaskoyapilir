@@ -2,7 +2,7 @@
 // Vercel ortam değişkenleri: GEMINI_API_KEY (zorunlu), GEMINI_MODEL, GEMINI_FALLBACK_MODEL, APPS_SCRIPT_URL (isteğe bağlı)
 // Tarayıcıda /api/gemini adresini açarsan ayarların durumunu gösterir. /api/gemini?test=1 Gemini'ye küçük bir deneme isteği atar.
 const APPS_URL = process.env.APPS_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbwSn0Fg6c5crShQLu48u78oREJLMtycYhrQy62_-Rpzbe1ZBZWWUCxlkuXrXynnXzQ-/exec';
-const MODELS = [process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite', process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash-lite'];
+const MODELS = [process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite', process.env.GEMINI_FALLBACK_MODEL || 'gemini-flash-lite-latest'];
 
 async function appsPost(payload) {
   const r = await fetch(APPS_URL, {
@@ -101,6 +101,7 @@ module.exports = async (req, res) => {
 
   const start = Date.now();
   let last = { status: 0, msg: 'bilinmeyen hata', model: MODELS[0] };
+  let first = null;
   try {
     for (const model of MODELS) {
       for (let attempt = 0; attempt < 2; attempt++) {
@@ -114,6 +115,7 @@ module.exports = async (req, res) => {
           return res.status(200).json({ text });
         }
         last = { status: r.status, msg: (d.error && d.error.message) || 'bilinmeyen hata', model };
+        if (!first) first = last;
         if (![429, 500, 503].includes(r.status)) break;
         await new Promise((ok) => setTimeout(ok, 1500));
       }
@@ -128,6 +130,6 @@ module.exports = async (req, res) => {
   if (last.status === 504) return res.status(504).json({ error: 'Gemini zamanında yanıt vermedi (dosya büyük ya da yoğunluk var). Daha az ya da küçük dosyayla tekrar dene.' });
   const busy = [429, 500, 503].includes(last.status);
   return res.status(502).json({
-    error: (busy ? 'Gemini şu an yoğun ya da kotan doldu. ' : 'Gemini hatası. ') + '(' + last.status + ', model ' + last.model + '): ' + String(last.msg).slice(0, 200),
+    error: (busy ? 'Gemini şu an yoğun ya da kotan doldu. ' : 'Gemini hatası. ') + '(' + (first || last).status + ', model ' + (first || last).model + '): ' + String((first || last).msg).slice(0, 200),
   });
 };
